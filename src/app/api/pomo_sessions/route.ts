@@ -10,13 +10,22 @@ export async function GET() {
 
   try {
     const [rows] = await connection.execute(
-      "SELECT * FROM Sessions " +
-        "WHERE DATE(session_start_time) = ? " +
-        "ORDER BY session_start_time ASC",
+      `
+      SELECT 
+        session_id, 
+        task_id, 
+        session_start_time, 
+        session_end_time, 
+        session_duration, 
+        SUM(session_duration) OVER(ORDER BY session_start_time) AS cumulative_duration 
+      FROM Sessions 
+      WHERE DATE(session_start_time) = ?
+      ORDER BY session_start_time ASC
+      `,
       [formattedDate]
     );
 
-    return NextResponse.json({ data: rows }, { status: 200 });
+    return NextResponse.json(rows, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   } finally {
@@ -24,8 +33,4 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { timeStart, timeEnd, duration } = req.body;
-
-  return NextResponse.json({ data });
-}
+export async function POST(req: NextApiRequest, res: NextApiResponse) {}

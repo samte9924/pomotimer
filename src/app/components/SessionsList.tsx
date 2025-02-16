@@ -9,13 +9,19 @@ export const SessionsList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchSessions = async () => {
       try {
-        const response = await fetch("/api/pomo_sessions");
-        console.log(response);
+        const response = await fetch("/api/pomo_sessions", {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch data.");
+        }
+
         const data = await response.json();
-        console.log(data.data);
-        setSessions(data.data);
+        setSessions(data);
       } catch (error) {
         console.error("Error fetching sessions:", error);
         setError(error.message);
@@ -25,6 +31,10 @@ export const SessionsList = () => {
     };
 
     fetchSessions();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   if (isLoading) {
