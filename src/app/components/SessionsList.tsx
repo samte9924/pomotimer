@@ -1,7 +1,6 @@
 "use client";
 
 import { formatTimeToMinutes } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
 
 export interface PomoSession {
   session_id: number;

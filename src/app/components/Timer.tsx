@@ -24,7 +24,7 @@ export const Timer = () => {
           clearInterval(intervalRef.current!);
           intervalRef.current = null;
           setIsRunning(false);
-          changeToNextTask();
+          startNextTask();
           return prev;
         }
         return { ...prev, time: prev.time - 1 };

@@ -1,5 +1,4 @@
-import { connectToDB } from "@/lib/db";
-import { NextApiRequest, NextApiResponse } from "next";
+import { connectToDB } from "@/lib/db/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -27,10 +26,16 @@ export async function GET() {
 
     return NextResponse.json(rows, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      // Handle the case where error is not an instance of Error
+      return NextResponse.json(
+        { error: "An unknown error occurred" },
+        { status: 500 }
+      );
+    }
   } finally {
     await connection.end();
   }
 }
-
-export async function POST(req: NextApiRequest, res: NextApiResponse) {}
