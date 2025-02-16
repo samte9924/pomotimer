@@ -1,27 +1,54 @@
 "use client";
 
+import { formatTime } from "@/lib/utils";
+import { POMODORO_TIMES, POMODORO_TASKS } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
 
 export const Timer = () => {
-  const [seconds, setSeconds] = useState(10);
+  const [isRunning, setIsRunning] = useState(false);
+  const [activeTask, setActiveTask] = useState({
+    name: POMODORO_TASKS[0],
+    time: POMODORO_TIMES[0],
+  });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = () => {
+    // Prevent multiple timers
     if (intervalRef.current !== null) {
-      return; // Prevent multiple timers
+      return;
     }
 
+    setIsRunning(true);
     intervalRef.current = setInterval(() => {
-      setSeconds((prev) => {
-        // Clear interval if seconds reach 0
-        if (prev === 0) {
+      setActiveTask((prev) => {
+        // Clear interval and stop timer if it reaches 0
+        if (prev.time === 0) {
           clearInterval(intervalRef.current!);
           intervalRef.current = null;
-          return 0;
+          setIsRunning(false);
+          changeToNextTask();
+          return prev;
         }
-        return prev - 1;
+        return { ...prev, time: prev.time - 1 };
       });
     }, 1000);
+  };
+
+  const stopTimer = () => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setIsRunning(false);
+    }
+  };
+
+  const changeToNextTask = () => {
+    const currentIndex = POMODORO_TASKS.indexOf(activeTask.name);
+    const nextIndex = (currentIndex + 1) % POMODORO_TASKS.length;
+    setActiveTask({
+      name: POMODORO_TASKS[nextIndex],
+      time: POMODORO_TIMES[nextIndex],
+    });
   };
 
   useEffect(() => {
@@ -33,12 +60,47 @@ export const Timer = () => {
   }, []);
 
   return (
-    <div>
-      <p>
-        Timer: {Math.floor(seconds / 60)}:
-        {(seconds % 60).toString().padStart(2, "0")}
-      </p>
-      <button onClick={startTimer}>Start</button>
+    <div className="flex flex-col justify-center items-center p-8">
+      <div className="flex w-full justify-center gap-5">
+        {POMODORO_TASKS.map((task, index) => (
+          <button
+            key={index}
+            className={`px-3 py-1 ${activeTask.name === task && "bg-white"}`}
+            onClick={() => {
+              stopTimer();
+              setActiveTask({ name: task, time: POMODORO_TIMES[index] });
+            }}
+          >
+            {task}
+          </button>
+        ))}
+      </div>
+      <span className="text-8xl py-8">{formatTime(activeTask.time)}</span>
+      <div className="flex justify-center gap-10">
+        <button
+          className="bg-white text-xl px-10 py-4"
+          onClick={() => {
+            if (isRunning) {
+              stopTimer();
+            } else {
+              setIsRunning(true);
+              startTimer();
+            }
+          }}
+        >
+          {isRunning ? "Ferma" : "Avvia"}
+        </button>
+        {isRunning && (
+          <button
+            onClick={() => {
+              stopTimer();
+              changeToNextTask();
+            }}
+          >
+            Termina
+          </button>
+        )}
+      </div>
     </div>
   );
 };
