@@ -96,6 +96,7 @@ export const Timer = () => {
           <button
             onClick={() => {
               stopTimer();
+              savePomoSessionToDB();
               startNextTask();
             }}
           >
