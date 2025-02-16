@@ -1,7 +1,7 @@
 "use client";
 
-import { formatTime } from "@/lib/utils";
-import { POMODORO_TIMES, POMODORO_TASKS } from "@/lib/constants";
+import { formatTimeToMinutes } from "@/lib/utils";
+import { POMODORO_TASKS } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
 
 export const Timer = () => {
@@ -48,6 +48,8 @@ export const Timer = () => {
     setActiveTask(POMODORO_TASKS[nextIndex]);
   };
 
+  const savePomoSessionToDB = () => {};
+
   useEffect(() => {
     return () => {
       if (intervalRef.current !== null) {
@@ -74,7 +76,9 @@ export const Timer = () => {
           </button>
         ))}
       </div>
-      <span className="text-8xl py-8">{formatTime(activeTask.time)}</span>
+      <span className="text-8xl py-8">
+        {formatTimeToMinutes(activeTask.time)}
+      </span>
       <div className="flex justify-center gap-10">
         <button
           className="bg-white text-xl px-10 py-4"

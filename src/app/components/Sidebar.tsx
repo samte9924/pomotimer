@@ -13,9 +13,9 @@ export const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link href="/stats">
+            <Link href="/report">
               <span className="block p-2 text-white hover:text-gray-200">
-                Statistiche
+                Report
               </span>
             </Link>
           </li>
