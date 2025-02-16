@@ -6,10 +6,8 @@ import { useEffect, useRef, useState } from "react";
 
 export const Timer = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [activeTask, setActiveTask] = useState({
-    name: POMODORO_TASKS[0],
-    time: POMODORO_TIMES[0],
-  });
+  const [activeTask, setActiveTask] = useState(POMODORO_TASKS[0]);
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = () => {
@@ -42,13 +40,12 @@ export const Timer = () => {
     }
   };
 
-  const changeToNextTask = () => {
-    const currentIndex = POMODORO_TASKS.indexOf(activeTask.name);
+  const startNextTask = () => {
+    const currentIndex = POMODORO_TASKS.findIndex(
+      (task) => task.name === activeTask.name
+    );
     const nextIndex = (currentIndex + 1) % POMODORO_TASKS.length;
-    setActiveTask({
-      name: POMODORO_TASKS[nextIndex],
-      time: POMODORO_TIMES[nextIndex],
-    });
+    setActiveTask(POMODORO_TASKS[nextIndex]);
   };
 
   useEffect(() => {
@@ -65,13 +62,15 @@ export const Timer = () => {
         {POMODORO_TASKS.map((task, index) => (
           <button
             key={index}
-            className={`px-3 py-1 ${activeTask.name === task && "bg-white"}`}
+            className={`px-3 py-1 ${
+              activeTask.name === task.name && "bg-white"
+            }`}
             onClick={() => {
               stopTimer();
-              setActiveTask({ name: task, time: POMODORO_TIMES[index] });
+              setActiveTask(task);
             }}
           >
-            {task}
+            {task.name}
           </button>
         ))}
       </div>
@@ -83,7 +82,6 @@ export const Timer = () => {
             if (isRunning) {
               stopTimer();
             } else {
-              setIsRunning(true);
               startTimer();
             }
           }}
@@ -94,7 +92,7 @@ export const Timer = () => {
           <button
             onClick={() => {
               stopTimer();
-              changeToNextTask();
+              startNextTask();
             }}
           >
             Termina
