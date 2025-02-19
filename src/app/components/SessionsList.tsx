@@ -16,6 +16,8 @@ export const SessionsList = ({
 }: {
   sessionsList: PomoSession[];
 }) => {
+  console.log(sessionsList);
+
   if (!sessionsList) {
     return <p>Loading...</p>;
   }

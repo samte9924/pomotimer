@@ -3,12 +3,29 @@
 import { formatTimeToMinutes } from "@/lib/utils";
 import { POMODORO_TASKS } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
+import { revalidatePath } from "next/cache";
+import { revalidatePomoSessions } from "@/lib/actions/revalidate";
+
+interface ActiveTask {
+  name: string;
+  time: number;
+  startTime: string;
+}
 
 export const Timer = () => {
   const [isRunning, setIsRunning] = useState(false);
-  const [activeTask, setActiveTask] = useState(POMODORO_TASKS[0]);
+  const [activeTask, setActiveTask] = useState<ActiveTask>(
+    initializeTask(POMODORO_TASKS[0])
+  );
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  function initializeTask(task: { name: string; time: number }) {
+    return {
+      ...task,
+      startTime: new Date().toISOString().slice(0, 16).replace("T", " "),
+    };
+  }
 
   const startTimer = () => {
     // Prevent multiple timers
@@ -17,6 +34,9 @@ export const Timer = () => {
     }
 
     setIsRunning(true);
+    setActiveTask(initializeTask(activeTask));
+    let isSessionSaved = false;
+
     intervalRef.current = setInterval(() => {
       setActiveTask((prev) => {
         // Clear interval and stop timer if it reaches 0
@@ -24,6 +44,12 @@ export const Timer = () => {
           clearInterval(intervalRef.current!);
           intervalRef.current = null;
           setIsRunning(false);
+
+          if (prev.name === POMODORO_TASKS[0].name && !isSessionSaved) {
+            isSessionSaved = true;
+            savePomoSessionToDB(prev);
+          }
+
           startNextTask();
           return prev;
         }
@@ -40,15 +66,52 @@ export const Timer = () => {
     }
   };
 
+  const endSessionAndSave = () => {
+    stopTimer();
+    if (activeTask.name === POMODORO_TASKS[0].name) {
+      savePomoSessionToDB(activeTask);
+    }
+  };
+
   const startNextTask = () => {
     const currentIndex = POMODORO_TASKS.findIndex(
       (task) => task.name === activeTask.name
     );
     const nextIndex = (currentIndex + 1) % POMODORO_TASKS.length;
-    setActiveTask(POMODORO_TASKS[nextIndex]);
+
+    setActiveTask(initializeTask(POMODORO_TASKS[nextIndex]));
   };
 
-  const savePomoSessionToDB = () => {};
+  const savePomoSessionToDB = async (task: ActiveTask) => {
+    const sessionEndTime = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+
+    console.log(sessionEndTime);
+
+    const session = {
+      session_start_time: task.startTime,
+      session_end_time: sessionEndTime,
+      session_duration: POMODORO_TASKS[0].time - task.time,
+    };
+
+    try {
+      const res = await fetch("/api/pomo_sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(session),
+      });
+
+      if (res.ok) {
+        await revalidatePomoSessions();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -69,7 +132,7 @@ export const Timer = () => {
             }`}
             onClick={() => {
               stopTimer();
-              setActiveTask(task);
+              setActiveTask(initializeTask(task));
             }}
           >
             {task.name}
@@ -95,8 +158,7 @@ export const Timer = () => {
         {isRunning && (
           <button
             onClick={() => {
-              stopTimer();
-              savePomoSessionToDB();
+              endSessionAndSave();
               startNextTask();
             }}
           >
