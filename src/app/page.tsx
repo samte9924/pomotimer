@@ -14,7 +14,7 @@ const fetchSessions = async () => {
   return response.json();
 };
 
-export default async function Home() {
+export default async function HomePage() {
   const sessions = await fetchSessions();
 
   return (

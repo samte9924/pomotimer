@@ -13,12 +13,16 @@ const fetchSessions = async () => {
   return response.json();
 };
 
-export default async function Report() {
+export default async function ReportPage() {
   const initialData = await fetchSessions();
 
   return (
-    <div className="flex flex-col items-center gap-10">
-      <LineChart data={initialData} />
+    <div className="flex flex-col items-center justify-center gap-10">
+      {initialData.length > 0 ? (
+        <LineChart data={initialData} />
+      ) : (
+        <h1>Nessun dato disponibile</h1>
+      )}
     </div>
   );
 }

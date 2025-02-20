@@ -20,6 +20,13 @@ export const Sidebar = () => {
             </Link>
           </li>
           <li>
+            <Link href="/upload">
+              <span className="block p-2 text-white hover:text-gray-200">
+                Carica sessioni
+              </span>
+            </Link>
+          </li>
+          <li>
             <Link href="/profile">
               <span className="block p-2 text-white hover:text-gray-200">
                 Profilo

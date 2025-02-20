@@ -53,7 +53,7 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
           data: {
             datasets: [
               {
-                label: "Tempo di studio",
+                label: "Tempo di studio per sessione",
                 data: studyTimeData,
                 backgroundColor: "rgba(75, 192, 192, 0.2)",
                 borderColor: "rgba(75, 192, 192, 1)",
