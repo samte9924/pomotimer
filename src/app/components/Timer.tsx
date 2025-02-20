@@ -3,7 +3,6 @@
 import { formatTimeToMinutes } from "@/lib/utils";
 import { POMODORO_TASKS } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
-import { revalidatePath } from "next/cache";
 import { revalidatePomoSessions } from "@/lib/actions/revalidate";
 
 interface ActiveTask {
@@ -53,7 +52,11 @@ export const Timer = () => {
           startNextTask();
           return prev;
         }
-        return { ...prev, time: prev.time - 1 };
+        console.log(prev.time);
+        const newTime = prev.time - 1;
+        document.title = `${prev.name} - ${formatTimeToMinutes(newTime)}`;
+
+        return { ...prev, time: newTime };
       });
     }, 1000);
   };
@@ -87,8 +90,6 @@ export const Timer = () => {
       .toISOString()
       .slice(0, 19)
       .replace("T", " ");
-
-    console.log(sessionEndTime);
 
     const session = {
       session_start_time: task.startTime,

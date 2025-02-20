@@ -1,5 +1,9 @@
 import { LineChart } from "../components/LineChart";
 
+export const metadata = {
+  title: "Pomotimer | Report",
+};
+
 const fetchSessions = async () => {
   const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 

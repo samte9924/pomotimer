@@ -1,6 +1,10 @@
 import { SessionsList } from "./components/SessionsList";
 import { Timer } from "./components/Timer";
 
+export const metadata = {
+  title: "Pomotimer",
+};
+
 const fetchSessions = async () => {
   const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
