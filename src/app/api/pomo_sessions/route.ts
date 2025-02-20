@@ -7,8 +7,6 @@ export async function GET() {
   const date = new Date();
   const formattedDate = date.toISOString().slice(0, 10) + "%";
 
-  console.log(formattedDate);
-
   try {
     const [rows] = await connection.execute(
       `
@@ -44,8 +42,6 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await request.json();
   const connection = await connectToDB();
-
-  console.log(body);
 
   try {
     const [rows] = await connection.execute(

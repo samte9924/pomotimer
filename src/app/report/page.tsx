@@ -21,7 +21,7 @@ export default async function ReportPage() {
   const initialData = await fetchSessions();
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
+    <div className="flex h-full justify-center pt-20">
       {initialData.length > 0 ? (
         <LineChart data={initialData} />
       ) : (

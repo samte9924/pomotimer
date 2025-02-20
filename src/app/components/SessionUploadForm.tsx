@@ -1,16 +1,22 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 
 export const SessionUploadForm = () => {
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFile(e.target.files?.[0] || null);
+  };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!fileRef.current) return;
+    if (!file) {
+      return;
+    }
 
     const formData = new FormData();
-    formData.append("file", fileRef.current.files![0]);
+    formData.append("file", file);
 
     const response = await fetch("/api/pomo_sessions/upload", {
       method: "POST",
@@ -22,15 +28,18 @@ export const SessionUploadForm = () => {
     } else {
       alert("Errore durante il caricamento dei dati");
     }
+
+    setFile(null);
   };
 
   return (
     <form>
-      <input type="file" accept=".csv" ref={fileRef} />
+      <input type="file" accept=".csv" onChange={handleFileChange} />
       <button
         type="submit"
         onClick={handleSubmit}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        disabled={!file}
+        className="bg-blue-500 hover:not-disabled:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
       >
         Carica
       </button>

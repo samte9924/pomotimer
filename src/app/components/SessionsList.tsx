@@ -24,13 +24,16 @@ export const SessionsList = ({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {sessionsList.map((session: PomoSession) => (
-        <div key={session.session_id}>
-          <p>
-            {session.session_start_time.slice(11, 16) + " - "}
-            {session.session_end_time.slice(11, 16)}
-          </p>
-          <p>{formatTimeToMinutes(session.session_duration)}</p>
+      {sessionsList.map((session: PomoSession, idx: number) => (
+        <div key={idx} className="flex w-64 justify-between">
+          <p>{`Sessione ${idx + 1}`}</p>
+          <div>
+            <p>
+              {session.session_start_time.slice(11, 16) + " - "}
+              {session.session_end_time.slice(11, 16)}
+            </p>
+            <p>{formatTimeToMinutes(session.session_duration)}</p>
+          </div>
         </div>
       ))}
     </div>

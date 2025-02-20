@@ -77,6 +77,7 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
           },
 
           options: {
+            responsive: true,
             elements: {
               point: {
                 radius: 7,
@@ -115,5 +116,9 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
     };
   }, [buildLineChart]);
 
-  return <canvas ref={chartRef} />;
+  return (
+    <div className="w-[85%]">
+      <canvas ref={chartRef} />
+    </div>
+  );
 };
