@@ -1,32 +1,33 @@
+"use client";
+
+import { useState } from "react";
 import { LineChart } from "../components/LineChart";
+import { BarChart } from "../components/BarChart";
 
-export const metadata = {
-  title: "Pomotimer | Report",
-};
+export interface PomoSession {
+  session_id: number;
+  task_id: number | null;
+  session_start_time: string;
+  session_end_time: string;
+  session_duration: number;
+  cumulative_duration: number;
+}
 
-const fetchSessions = async () => {
-  const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
-
-  const response = await fetch(`${BASE_URL}/api/pomo_sessions`, {
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch data.");
-  }
-
-  return response.json();
-};
-
-export default async function ReportPage() {
-  const initialData = await fetchSessions();
+export default function ReportPage() {
+  const [chartType, setChartType] = useState<"today" | "this_week" | "month">(
+    "this_week"
+  );
 
   return (
     <div className="flex h-full justify-center pt-20">
-      {initialData.length > 0 ? (
-        <LineChart data={initialData} />
-      ) : (
-        <h1>Nessun dato disponibile</h1>
-      )}
+      <div>
+        <button onClick={() => setChartType("today")}>Oggi</button>
+        <button onClick={() => setChartType("this_week")}>
+          Questa settimana
+        </button>
+        <button onClick={() => setChartType("month")}>Questo mese</button>
+      </div>
+      {chartType === "today" ? <LineChart /> : <BarChart />}
     </div>
   );
 }

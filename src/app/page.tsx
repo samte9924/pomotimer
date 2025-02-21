@@ -8,7 +8,7 @@ export const metadata = {
 const fetchSessions = async () => {
   const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
-  const response = await fetch(`${BASE_URL}/api/pomo_sessions`, {
+  const response = await fetch(`${BASE_URL}/api/pomo_sessions/today`, {
     cache: "no-store",
   });
   if (!response.ok) {
