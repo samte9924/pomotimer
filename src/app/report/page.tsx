@@ -15,7 +15,7 @@ export interface PomoSession {
 
 export default function ReportPage() {
   const [chartType, setChartType] = useState<"today" | "this_week" | "month">(
-    "this_week"
+    "today"
   );
 
   return (
