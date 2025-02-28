@@ -1,13 +1,6 @@
-import mysql from "mysql2/promise";
+import { createClient } from "@supabase/supabase-js";
 
-export async function connectToDB() {
-  const connection = await mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    timezone: "Z",
-  });
-
-  return connection;
-}
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);

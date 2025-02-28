@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { LineChart } from "../components/LineChart";
-import { BarChart } from "../components/BarChart";
+import { DailyChart } from "../components/DailyChart";
+import { WeeklyChart } from "../components/WeeklyChart";
+import { MonthlyChart } from "../components/MonthlyChart";
 
 export interface PomoSession {
   session_id: number;
@@ -20,14 +21,16 @@ export default function ReportPage() {
 
   return (
     <div className="flex h-full justify-center pt-20">
-      <div>
+      <div className="flex flex-col gap-4">
         <button onClick={() => setChartType("today")}>Oggi</button>
         <button onClick={() => setChartType("this_week")}>
           Questa settimana
         </button>
         <button onClick={() => setChartType("month")}>Questo mese</button>
       </div>
-      {chartType === "today" ? <LineChart /> : <BarChart />}
+      {chartType === "today" && <DailyChart />}
+      {chartType === "this_week" && <WeeklyChart />}
+      {chartType === "month" && <MonthlyChart />}
     </div>
   );
 }
