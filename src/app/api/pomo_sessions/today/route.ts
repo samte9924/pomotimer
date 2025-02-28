@@ -1,70 +1,52 @@
-import { connectToDB } from "@/lib/db/db";
+import { supabase } from "@/lib/db/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const connection = await connectToDB();
-
   const date = new Date();
-  const formattedDate = date.toISOString().slice(0, 10) + "%";
+  const formattedDate = date.toISOString().slice(0, 10);
+  console.log(formattedDate);
 
-  try {
-    const [rows] = await connection.execute(
-      `
-      SELECT 
-        session_id, 
-        session_start_time, 
-        session_end_time, 
-        session_duration, 
-        SUM(session_duration) OVER(ORDER BY session_start_time) AS cumulative_duration 
-      FROM Sessions 
-      WHERE session_start_time LIKE ?
-      ORDER BY session_start_time ASC
-      `,
-      [formattedDate]
-    );
+  const { data, error } = await supabase
+    .from("sessions")
+    .select(
+      "session_id, session_start_time, session_end_time, session_duration"
+    )
+    .gte("session_start_time", `${formattedDate} 00:00:00`)
+    .lte("session_start_time", `${formattedDate} 23:59:59`);
 
-    return NextResponse.json(rows, { status: 200 });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-      // Handle the case where error is not an instance of Error
-      return NextResponse.json(
-        { error: "An unknown error occurred" },
-        { status: 500 }
-      );
-    }
-  } finally {
-    await connection.end();
+  if (error) {
+    console.log(error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  return NextResponse.json(data, { status: 200 });
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const connection = await connectToDB();
 
-  try {
-    const [rows] = await connection.execute(
-      `
-      INSERT INTO Sessions (session_start_time, session_end_time, session_duration) 
-      VALUES (?, ?, ?);
-      `,
-      [body.session_start_time, body.session_end_time, body.session_duration]
+  if (
+    !body.session_start_time ||
+    !body.session_end_time ||
+    body.session_duration == null
+  ) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 }
     );
-
-    return NextResponse.json(rows, { status: 200 });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-      // Handle the case where error is not an instance of Error
-      return NextResponse.json(
-        { error: "An unknown error occurred" },
-        { status: 500 }
-      );
-    }
-  } finally {
-    await connection.end();
   }
+
+  const { data, error } = await supabase.from("sessions").insert([
+    {
+      session_start_time: body.session_start_time,
+      session_end_time: body.session_end_time,
+      session_duration: body.session_duration,
+    },
+  ]);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data, { status: 201 });
 }

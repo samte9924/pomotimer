@@ -1,25 +1,44 @@
-import { connectToDB } from "@/lib/db/db";
+import { supabase } from "@/lib/db/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const connection = await connectToDB();
-
   try {
-    const [rows] = await connection.execute(
-      `
-      SELECT
-        DATE(session_start_time) AS day,
-        SUM(session_duration) AS total_duration,
-        COUNT(session_id) AS total_sessions
-      FROM 
-        Sessions
-      WHERE 
-        YEARWEEK(session_start_time, 1) = YEARWEEK(CURDATE(), 1)
-      GROUP BY 
-        DATE(session_start_time)
-      ORDER BY 
-        day;
-      `
+    // Get the start and end of the current week
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+    // Query the sessions table
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("session_start_time, session_duration, session_id")
+      .gte("session_start_time", startOfWeek.toISOString())
+      .lte("session_start_time", endOfWeek.toISOString());
+
+    if (error) {
+      throw error;
+    }
+
+    // Process the data to get the required metrics
+    const result = data.reduce((acc, session) => {
+      const day = new Date(session.session_start_time)
+        .toISOString()
+        .split("T")[0];
+      if (!acc[day]) {
+        acc[day] = {
+          day,
+          total_duration: 0,
+          total_sessions: 0,
+        };
+      }
+      acc[day].total_duration += session.session_duration;
+      acc[day].total_sessions += 1;
+      return acc;
+    }, {});
+
+    // Convert the result object to an array
+    const rows = Object.values(result).sort(
+      (a, b) => new Date(a.day) - new Date(b.day)
     );
 
     return NextResponse.json(rows, { status: 200 });
@@ -32,7 +51,5 @@ export async function GET() {
         { status: 500 }
       );
     }
-  } finally {
-    await connection.end();
   }
 }

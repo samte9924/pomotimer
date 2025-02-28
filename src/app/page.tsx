@@ -20,6 +20,7 @@ const fetchSessions = async () => {
 
 export default async function HomePage() {
   const sessions = await fetchSessions();
+  console.log(sessions);
 
   return (
     <div className="flex flex-col h-screen items-center gap-10">

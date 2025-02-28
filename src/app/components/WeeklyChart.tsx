@@ -27,7 +27,7 @@ const borderColors = [
 
 const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
-export const BarChart = ({}) => {
+export const WeeklyChart = ({}) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<"bar", number[], string> | null>(null);
 
@@ -38,12 +38,7 @@ export const BarChart = ({}) => {
     const fetchSessions = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `${BASE_URL}/api/pomo_sessions/this_week`,
-          {
-            cache: "no-store",
-          }
-        );
+        const response = await fetch(`${BASE_URL}/api/pomo_sessions/this_week`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch data.");
@@ -57,8 +52,6 @@ export const BarChart = ({}) => {
         setIsLoading(false);
       }
     };
-
-    //console.log("object");
     fetchSessions();
   }, []);
 
@@ -94,10 +87,15 @@ export const BarChart = ({}) => {
           scales: {
             x: {
               title: { display: true, text: "Giorno" },
+              suggestedMax: 7,
             },
             y: {
-              beginAtZero: true,
               title: { display: true, text: "Tempo di studio (minuti)" },
+              ticks: {
+                stepSize: 60,
+              },
+              suggestedMax: 360,
+              beginAtZero: true,
             },
           },
           plugins: {
@@ -112,7 +110,7 @@ export const BarChart = ({}) => {
                   const totalSessions = data[index].total_sessions;
 
                   return [
-                    `Tempo totale: ${totalDuration.toFixed(2)} min`,
+                    `Tempo totale: ${totalDuration.toFixed(0)} min`,
                     `Sessioni: ${totalSessions}`,
                   ];
                 },

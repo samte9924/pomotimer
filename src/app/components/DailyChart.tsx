@@ -4,29 +4,10 @@ import { Chart } from "chart.js/auto";
 import { useEffect, useRef, useState } from "react";
 import { PomoSession } from "./SessionsList";
 
-function calculateAverage(data: number[]) {
-  const sum = data.reduce((acc, val) => acc + val, 0);
-  return sum / data.length;
-}
-
 function getStudyTimeData(data: PomoSession[]) {
   return data.map((item, index) => ({
     x: String(index + 1),
     y: item.session_duration / 60,
-  }));
-}
-
-function getAvgStudyTimeData(data: PomoSession[]) {
-  return data.map((_, index) => ({
-    x: String(index + 1),
-    y: calculateAverage(data.map((item) => item.session_duration)) / 60,
-  }));
-}
-
-function getCumulativeStudyTimeData(data: PomoSession[]) {
-  return data.map((item, index) => ({
-    x: String(index + 1),
-    y: Number(item.cumulative_duration / 60),
   }));
 }
 
@@ -37,7 +18,7 @@ interface ChartData {
 
 const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
-export const LineChart = ({}) => {
+export const DailyChart = () => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart<"line", ChartData[], string> | null>(null);
 
@@ -48,9 +29,7 @@ export const LineChart = ({}) => {
     const fetchSessions = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${BASE_URL}/api/pomo_sessions/today`, {
-          cache: "no-store",
-        });
+        const response = await fetch(`${BASE_URL}/api/pomo_sessions/today`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch data.");
@@ -88,20 +67,6 @@ export const LineChart = ({}) => {
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
             },
-            {
-              label: "Media tempo di studio",
-              data: getAvgStudyTimeData(data),
-              backgroundColor: "rgba(255, 99, 132, 0.2)",
-              borderColor: "rgba(255, 99, 132, 1)",
-              borderWidth: 1,
-            },
-            {
-              label: "Tempo di studio cumulativo",
-              data: getCumulativeStudyTimeData(data),
-              backgroundColor: "rgba(153, 102, 255, 0.2)",
-              borderColor: "rgba(153, 102, 255, 1)",
-              borderWidth: 1,
-            },
           ],
         },
 
@@ -126,6 +91,10 @@ export const LineChart = ({}) => {
                 display: true,
                 text: "Tempo di studio (minuti)",
               },
+              ticks: {
+                stepSize: 20,
+              },
+              suggestedMax: 100,
               beginAtZero: true,
             },
           },
