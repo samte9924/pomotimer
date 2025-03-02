@@ -79,7 +79,6 @@ export const MonthlyChart = () => {
             legend: {
               display: false,
             },
-<<<<<<< HEAD
             tooltip: {
               callbacks: {
                 label: function (context) {
@@ -94,8 +93,6 @@ export const MonthlyChart = () => {
                 },
               },
             },
-=======
->>>>>>> 8612200dc07a8c0b41f1b5b24046f776cd38deab
           },
           scales: {
             x: {
@@ -103,10 +100,7 @@ export const MonthlyChart = () => {
               suggestedMax: 5,
             },
             y: {
-<<<<<<< HEAD
               title: { display: true, text: "Tempo di studio (minuti)" },
-=======
->>>>>>> 8612200dc07a8c0b41f1b5b24046f776cd38deab
               ticks: {
                 stepSize: 120,
               },
